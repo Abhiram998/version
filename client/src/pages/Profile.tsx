@@ -1,10 +1,61 @@
-import { ArrowLeft, User, Phone, Car, History, LogOut } from "lucide-react";
+import { ArrowLeft, User, Phone, Car, History, LogOut, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useParking } from "@/lib/parking-context";
 
 export default function Profile() {
+  const { isAdmin, logoutAdmin } = useParking();
+
+  if (isAdmin) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4 mb-2">
+          <Link href="/">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold">Officer Profile</h1>
+        </div>
+
+        <Card className="border-none shadow-md bg-slate-900 text-white">
+          <CardContent className="pt-6 flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-blue-500/20 flex items-center justify-center border-2 border-blue-500/50">
+              <Shield className="w-8 h-8 text-blue-500" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Officer James Smith</h2>
+              <div className="flex flex-col gap-1 text-blue-100 text-sm mt-1">
+                <div className="flex items-center gap-2">
+                  <User className="w-3 h-3" />
+                  <span>ID: POL-575</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3 h-3" />
+                  <span>+91 98765 43210</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="pt-4">
+          <Link href="/login">
+            <Button 
+              variant="destructive" 
+              className="w-full gap-2"
+              onClick={logoutAdmin}
+            >
+              <LogOut className="w-4 h-4" /> Sign Out
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-2">

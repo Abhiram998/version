@@ -3,10 +3,12 @@ import { Car, ShieldCheck, Home, Menu, User, Ticket, BarChart3, LogIn } from "lu
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useParking } from "@/lib/parking-context";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { isAdmin } = useParking();
 
   // Don't show layout on login pages
   if (location === '/login' || location === '/admin/login') {
@@ -39,13 +41,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <span>Profile</span>
         </div>
       </Link>
-      <div className="border-t my-2 md:border-l md:border-t-0 md:my-0 md:mx-2 md:h-6 opacity-20" />
-      <Link href="/admin">
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location.startsWith('/admin') ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
-          <ShieldCheck className="w-4 h-4" />
-          <span>Police Admin</span>
-        </div>
-      </Link>
+      {isAdmin && (
+        <>
+          <div className="border-t my-2 md:border-l md:border-t-0 md:my-0 md:mx-2 md:h-6 opacity-20" />
+          <Link href="/admin">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location.startsWith('/admin') ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
+              <ShieldCheck className="w-4 h-4" />
+              <span>Police Admin</span>
+            </div>
+          </Link>
+        </>
+      )}
     </>
   );
 

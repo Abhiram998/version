@@ -23,7 +23,7 @@ export default function Login() {
             <Car className="w-6 h-6" />
           </div>
           <CardTitle className="text-2xl font-bold text-primary">Nilakkal Parking</CardTitle>
-          <CardDescription>Sign in to book slots and view status</CardDescription>
+          <CardDescription>Sign in to view status</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
