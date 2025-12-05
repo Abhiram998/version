@@ -14,6 +14,7 @@ import AreaDetails from "@/pages/AreaDetails";
 import Predictions from "@/pages/Predictions";
 import Ticket from "@/pages/Ticket";
 import Profile from "@/pages/Profile";
+import QRCode from "@/pages/QRCode";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/predictions" component={Predictions} />
       <Route path="/ticket" component={Ticket} />
       <Route path="/profile" component={Profile} />
+      <Route path="/qr-code" component={QRCode} />
       <Route component={NotFound} />
     </Switch>
   );

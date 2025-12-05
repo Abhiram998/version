@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Car, ShieldCheck, Home, Menu, User, Ticket, BarChart3, LogIn } from "lucide-react";
+import { Car, ShieldCheck, Home, Menu, User, Ticket, BarChart3, LogIn, QrCode, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -23,31 +23,44 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <span>Home</span>
         </div>
       </Link>
-      <Link href="/ticket">
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/ticket' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
-          <Ticket className="w-4 h-4" />
-          <span>My Ticket</span>
-        </div>
-      </Link>
-      <Link href="/predictions">
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/predictions' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
-          <BarChart3 className="w-4 h-4" />
-          <span>Forecast</span>
-        </div>
-      </Link>
+      
+      {!isAdmin && (
+        <>
+          <Link href="/ticket">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/ticket' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
+              <Ticket className="w-4 h-4" />
+              <span>My Ticket</span>
+            </div>
+          </Link>
+          <Link href="/predictions">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/predictions' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
+              <BarChart3 className="w-4 h-4" />
+              <span>Forecast</span>
+            </div>
+          </Link>
+        </>
+      )}
+
       <Link href="/profile">
         <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/profile' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
           <User className="w-4 h-4" />
           <span>Profile</span>
         </div>
       </Link>
+
       {isAdmin && (
         <>
           <div className="border-t my-2 md:border-l md:border-t-0 md:my-0 md:mx-2 md:h-6 opacity-20" />
           <Link href="/admin">
             <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location.startsWith('/admin') ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
-              <ShieldCheck className="w-4 h-4" />
-              <span>Police Admin</span>
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Dashboard</span>
+            </div>
+          </Link>
+          <Link href="/qr-code">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/qr-code' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
+              <QrCode className="w-4 h-4" />
+              <span>QR Code</span>
             </div>
           </Link>
         </>

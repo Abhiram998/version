@@ -1,14 +1,38 @@
-import { useParking } from "@/lib/parking-context";
+import { useParking, ParkingZone } from "@/lib/parking-context";
 import { ZoneCard } from "@/components/parking/ZoneCard";
-import { PredictionChart } from "@/components/parking/PredictionChart";
-import { AlertCircle, MapPin, ArrowRight } from "lucide-react";
+import { MapPin, Search, ArrowRight } from "lucide-react";
 import heroImage from '@assets/generated_images/sabarimala_parking_entrance_atmospheric_shot.png';
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 export default function Home() {
   const { zones, totalCapacity, totalOccupied } = useParking();
   const availabilityPercentage = Math.round(((totalCapacity - totalOccupied) / totalCapacity) * 100);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResult, setSearchResult] = useState<{zone: ParkingZone, vehicle: any} | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setHasSearched(true);
+    if (!searchQuery.trim()) {
+      setSearchResult(null);
+      return;
+    }
+
+    for (const zone of zones) {
+      const vehicle = zone.vehicles.find(v => v.number.toLowerCase().includes(searchQuery.toLowerCase()));
+      if (vehicle) {
+        setSearchResult({ zone, vehicle });
+        return;
+      }
+    }
+    setSearchResult(null);
+  };
 
   return (
     <div className="space-y-12">
@@ -53,34 +77,48 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Prediction Section */}
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-1 space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">Tomorrow's Forecast</h2>
-          <p className="text-muted-foreground">
-            Plan your pilgrimage smarter. See our AI-powered occupancy predictions for the coming days.
-          </p>
-          <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex gap-3 items-start">
-            <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
-            <div className="space-y-1">
-              <h4 className="font-semibold text-sm text-blue-900">Pilgrim Advisory</h4>
-              <p className="text-sm text-blue-700">
-                Heavy rush expected between 4:00 PM and 8:00 PM. Plan to arrive early morning for easier parking.
-              </p>
+      {/* Search Section */}
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+             <Search className="w-5 h-5 text-primary" />
+             Find Your Vehicle
+          </h2>
+          <form onSubmit={handleSearch} className="flex gap-3 mb-4">
+             <Input 
+               placeholder="Enter Vehicle Number (e.g. KL-01...)" 
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="flex-1"
+             />
+             <Button type="submit">Search</Button>
+          </form>
+
+          {hasSearched && (
+            <div className="animate-in fade-in slide-in-from-top-2">
+              {searchResult ? (
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-green-100 dark:bg-green-800 p-2 rounded-full">
+                      <MapPin className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-green-800 dark:text-green-300">Vehicle Found!</h3>
+                      <div className="mt-2 space-y-1 text-sm text-green-700 dark:text-green-400">
+                        <p>Vehicle: <span className="font-mono font-semibold">{searchResult.vehicle.number}</span></p>
+                        <p>Location: <span className="font-bold">{searchResult.zone.name}</span></p>
+                        <p>Ticket/Slot ID: <span className="font-mono font-semibold">{searchResult.vehicle.ticketId}</span></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : searchQuery.trim() ? (
+                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-lg p-4 text-center text-red-600 dark:text-red-400">
+                   Vehicle not found in any active zone.
+                 </div>
+              ) : null}
             </div>
-          </div>
-          <Link href="/predictions">
-            <Button variant="outline" className="w-full group text-primary border-primary/20 hover:bg-primary/5">
-              View Full Forecast <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </Link>
-        </div>
-        <div className="md:col-span-2 bg-card border border-border rounded-xl p-6 shadow-sm">
-          <div className="mb-6 flex justify-between items-center">
-            <h3 className="font-medium text-muted-foreground uppercase text-sm tracking-wider">Occupancy Probability</h3>
-            <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">Date: Tomorrow</span>
-          </div>
-          <PredictionChart />
+          )}
         </div>
       </div>
 
