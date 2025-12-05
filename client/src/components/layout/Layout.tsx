@@ -26,12 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       
       {!isAdmin && (
         <>
-          <Link href="/ticket">
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/ticket' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
-              <Ticket className="w-4 h-4" />
-              <span>My Ticket</span>
-            </div>
-          </Link>
+          {/* Ticket moved to home page as requested */}
           <Link href="/predictions">
             <div className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors cursor-pointer ${location === '/predictions' ? 'bg-primary/10 text-primary font-medium' : 'text-muted-foreground hover:text-primary'}`}>
               <BarChart3 className="w-4 h-4" />
@@ -90,6 +85,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             <NavLinks />
+            {!isAdmin && (
+              <Link href="/admin/login">
+                <Button variant="ghost" size="sm" className="ml-2 gap-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  Admin
+                </Button>
+              </Link>
+            )}
           </nav>
 
           {/* Mobile Nav */}
@@ -104,9 +107,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div className="flex flex-col gap-2 mt-8">
                   <NavLinks />
                   <div className="mt-auto border-t pt-4">
-                    <Link href="/login">
+                    <Link href="/admin/login">
                       <Button variant="outline" className="w-full gap-2">
-                        <LogIn className="w-4 h-4" /> Login
+                        <ShieldCheck className="w-4 h-4" /> Admin Login
                       </Button>
                     </Link>
                   </div>

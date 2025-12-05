@@ -1,14 +1,28 @@
 import { useParking, ParkingZone } from "@/lib/parking-context";
 import { ZoneCard } from "@/components/parking/ZoneCard";
-import { MapPin, Search } from "lucide-react";
+import { MapPin, Search, Ticket, BarChart3 } from "lucide-react";
 import heroImage from '@assets/generated_images/sabarimala_parking_entrance_atmospheric_shot.png';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Link } from "wouter";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
 
 export default function Home() {
   const { zones, totalCapacity, totalOccupied, isAdmin } = useParking();
   const availabilityPercentage = Math.round(((totalCapacity - totalOccupied) / totalCapacity) * 100);
+
+  // Prepare chart data
+  const chartData = zones.map(zone => ({
+    name: zone.name.replace('Nilakkal Zone ', 'Z'),
+    Heavy: zone.stats.heavy,
+    Medium: zone.stats.medium,
+    Light: zone.stats.light,
+    occupied: zone.occupied,
+    capacity: zone.capacity,
+    // Calculate color based on availability
+    fillColor: (zone.occupied / zone.capacity) > 0.8 ? '#ef4444' : (zone.occupied / zone.capacity) > 0.5 ? '#f97316' : '#22c55e'
+  }));
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,9 +48,9 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-12">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-card border border-border shadow-xl">
+    <div className="space-y-8">
+      {/* Hero Section - Smaller as requested */}
+      <div className="relative overflow-hidden rounded-3xl bg-card border border-border shadow-xl h-[300px]">
         <div className="absolute inset-0">
           <img 
             src={heroImage} 
@@ -46,32 +60,96 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
         </div>
         
-        <div className="relative z-10 p-8 md:p-12 max-w-2xl text-white">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-sm font-medium mb-6 backdrop-blur-sm">
+        <div className="relative z-10 p-8 h-full flex flex-col justify-center max-w-2xl text-white">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-medium mb-4 backdrop-blur-sm w-fit">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
             </span>
             Live Status
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 leading-tight tracking-tight">
             Nilakkal Parking
           </h1>
-          <p className="text-lg text-white/80 mb-8 max-w-lg leading-relaxed">
-            Real-time parking availability for Sabarimala pilgrims. Check slots, plan your visit, and park hassle-free.
+          <p className="text-base text-white/80 mb-6 max-w-lg leading-relaxed">
+            Real-time parking availability for Sabarimala pilgrims.
           </p>
           
-          <div className="grid grid-cols-2 gap-4 md:gap-8">
+          <div className="flex gap-8">
             <div>
-              <div className="text-sm text-white/60 uppercase tracking-wider font-medium mb-1">Vacant Spots</div>
-              <div className="text-4xl font-bold text-white">{totalCapacity - totalOccupied}</div>
+              <div className="text-xs text-white/60 uppercase tracking-wider font-medium mb-1">Vacant Spots</div>
+              <div className="text-2xl font-bold text-white">{totalCapacity - totalOccupied}</div>
             </div>
             <div>
-              <div className="text-sm text-white/60 uppercase tracking-wider font-medium mb-1">Status</div>
-              <div className={`text-4xl font-bold ${availabilityPercentage < 20 ? 'text-red-400' : 'text-green-400'}`}>
+              <div className="text-xs text-white/60 uppercase tracking-wider font-medium mb-1">Status</div>
+              <div className={`text-2xl font-bold ${availabilityPercentage < 20 ? 'text-red-400' : 'text-green-400'}`}>
                 {availabilityPercentage < 10 ? 'Critical' : availabilityPercentage < 30 ? 'Busy' : 'Available'}
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Zone Capacity Graph */}
+      <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-6">
+          <BarChart3 className="w-5 h-5 text-primary" />
+          <h2 className="text-xl font-bold">Zone Capacity Overview</h2>
+        </div>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted/20" />
+              <XAxis dataKey="name" className="text-xs" tick={{ fill: 'currentColor' }} />
+              <YAxis className="text-xs" tick={{ fill: 'currentColor' }} />
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                cursor={{ fill: 'var(--muted)', opacity: 0.1 }}
+              />
+              <Legend />
+              {/* Stacked bars for vehicle types */}
+              <Bar dataKey="Heavy" stackId="a" fill="#3b82f6" />
+              <Bar dataKey="Medium" stackId="a" fill="#8b5cf6" />
+              <Bar dataKey="Light" stackId="a" fill="#10b981" />
+              
+              {/* We add a custom background or reference to show the availability color? 
+                  Actually, let's make the STROKE of the bars correspond to availability or just stick to the stacked view 
+                  and add a separate "Availability" bar?
+                  
+                  Let's try the user's specific request: "colour in a way according to the availability green ,orange ,red"
+                  This contradicts the stacked vehicle type view (which needs colors for types).
+                  
+                  Compromise: The chart shows Vehicle Types. I will ADD a "Status" strip below or modify the tooltip.
+                  
+                  WAIT, I can use a composed chart or just let the vehicle types take precedence for the breakdown.
+                  But the prompt says "graph should be shown in a colour in a way according to the availability".
+                  
+                  Let's try this: 
+                  1. A Bar for Total Occupied (Colored by Availability).
+                  2. Tooltip breaks down types.
+                  
+                  Let's comment out the stacked bars and use the colored total bar for now as it matches the "color according to availability" requirement better visually.
+              */}
+               <Bar dataKey="occupied" name="Total Occupied" radius={[4, 4, 0, 0]}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fillColor} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex justify-center gap-6 mt-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-green-500" />
+            <span>Available</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-orange-500" />
+            <span>Filling Fast</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500" />
+            <span>Critical/Full</span>
           </div>
         </div>
       </div>
@@ -125,9 +203,20 @@ export default function Home() {
 
       {/* Zones Grid */}
       <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-primary" />
-          <h2 className="text-2xl font-bold text-foreground">Parking Zones</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-primary" />
+            <h2 className="text-2xl font-bold text-foreground">Parking Zones</h2>
+          </div>
+          
+          {!isAdmin && (
+            <Link href="/ticket">
+              <Button className="gap-2 shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90">
+                <Ticket className="w-4 h-4" />
+                My Ticket
+              </Button>
+            </Link>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {zones.map((zone) => (
