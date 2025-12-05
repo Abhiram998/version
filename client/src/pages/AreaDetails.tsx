@@ -8,7 +8,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } 
 
 export default function AreaDetails() {
   const { id } = useParams();
-  const { zones } = useParking();
+  const { zones, isAdmin } = useParking();
   const zone = zones.find(z => z.id === id);
 
   if (!zone) return <div>Zone not found</div>;
@@ -174,7 +174,9 @@ export default function AreaDetails() {
                       {getVehicleIcon(v.type)}
                     </div>
                     <div>
-                      <div className="font-mono font-medium">{v.number}</div>
+                      <div className="font-mono font-medium">
+                        {isAdmin ? v.number : v.number.replace(/^([A-Z]{2}-\d+)-[A-Z0-9]+-(\d+)$/, "$1-**-****")}
+                      </div>
                       <div className="flex gap-2 items-center">
                         <span className="text-xs text-muted-foreground">Ticket: {v.ticketId}</span>
                         <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded border ${

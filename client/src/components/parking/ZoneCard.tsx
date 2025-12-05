@@ -1,10 +1,11 @@
-import { ParkingZone } from "@/lib/parking-context";
+import { ParkingZone, useParking } from "@/lib/parking-context";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 
 export function ZoneCard({ zone, detailed = false }: { zone: ParkingZone, detailed?: boolean }) {
+  const { isAdmin } = useParking();
   const percentage = Math.round((zone.occupied / zone.capacity) * 100);
   const isFull = percentage >= 100;
   const isNearFull = percentage > 85;
@@ -59,7 +60,9 @@ export function ZoneCard({ zone, detailed = false }: { zone: ParkingZone, detail
           <div className="space-y-2">
             {zone.vehicles.slice(0, 3).map((v, i) => (
               <div key={i} className="flex justify-between text-sm bg-background/50 p-2 rounded border border-border/50">
-                <span className="font-mono font-medium">{v.number}</span>
+                <span className="font-mono font-medium">
+                  {isAdmin ? v.number : v.number.replace(/^([A-Z]{2}-\d+)-[A-Z0-9]+-(\d+)$/, "$1-**-****")}
+                </span>
                 <span className="text-xs text-muted-foreground">{v.entryTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
               </div>
             ))}

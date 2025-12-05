@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useParking } from "@/lib/parking-context";
 import { Shield, Lock, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
+  const { loginAdmin } = useParking();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    loginAdmin();
     setLocation("/admin");
   };
 

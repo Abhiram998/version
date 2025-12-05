@@ -28,6 +28,9 @@ type ParkingContextType = {
   enterVehicle: (vehicleNumber: string, type?: VehicleType) => { success: boolean; ticket?: any; message?: string };
   totalCapacity: number;
   totalOccupied: number;
+  isAdmin: boolean;
+  loginAdmin: () => void;
+  logoutAdmin: () => void;
 };
 
 const ParkingContext = createContext<ParkingContextType | undefined>(undefined);
@@ -68,6 +71,10 @@ const INITIAL_ZONES: ParkingZone[] = Array.from({ length: ZONES_COUNT }, (_, i) 
 
 export function ParkingProvider({ children }: { children: React.ReactNode }) {
   const [zones, setZones] = useState<ParkingZone[]>(INITIAL_ZONES);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const loginAdmin = () => setIsAdmin(true);
+  const logoutAdmin = () => setIsAdmin(false);
 
   // Simulate live updates
   useEffect(() => {
@@ -164,7 +171,7 @@ export function ParkingProvider({ children }: { children: React.ReactNode }) {
   const totalOccupied = zones.reduce((acc, z) => acc + z.occupied, 0);
 
   return (
-    <ParkingContext.Provider value={{ zones, enterVehicle, totalCapacity, totalOccupied }}>
+    <ParkingContext.Provider value={{ zones, enterVehicle, totalCapacity, totalOccupied, isAdmin, loginAdmin, logoutAdmin }}>
       {children}
     </ParkingContext.Provider>
   );
