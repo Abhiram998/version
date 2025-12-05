@@ -96,9 +96,9 @@ export default function Home() {
           <BarChart3 className="w-5 h-5 text-primary" />
           <h2 className="text-xl font-bold">Real-time Zone Vacancy by Vehicle Type</h2>
         </div>
-        <div className="h-[350px] w-full">
+        <div className="h-[500px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barGap={8} barCategoryGap="20%">
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barGap={0} barCategoryGap="30%">
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
               <XAxis 
                 dataKey="name" 
