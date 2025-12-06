@@ -114,18 +114,13 @@ export default function Home() {
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'var(--card)', 
+                  backgroundColor: '#000000', 
                   borderColor: 'var(--border)', 
                   borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  color: '#ffffff'
                 }}
                 cursor={{ fill: 'var(--muted)', opacity: 0.1 }}
-              />
-              <Legend 
-                verticalAlign="top" 
-                height={36} 
-                iconType="circle"
-                wrapperStyle={{ fontSize: '12px', fontWeight: 500 }}
               />
               
               {/* Grouped Bars for Vehicle Composition - Removed stackId to unstack them */}
