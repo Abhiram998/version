@@ -2,7 +2,7 @@ import { useParking, ParkingZone } from "@/lib/parking-context";
 import { ZoneCard } from "@/components/parking/ZoneCard";
 import { MapPin, Search, Ticket, BarChart3 } from "lucide-react";
 import heroImage from '@assets/generated_images/sabarimala_parking_entrance_atmospheric_shot.png';
-import policeLogo from '@assets/39187d46-b1f9-4842-8f8a-5185d294889e_1764999830963.jpeg';
+import policeLogo from '@assets/police-logo-transparent.png';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -92,7 +92,7 @@ export default function Home() {
              <img 
                src={policeLogo} 
                alt="Kerala Police Logo" 
-               className="h-full w-full object-contain drop-shadow-2xl mix-blend-screen filter brightness-110 contrast-125" 
+               className="h-full w-full object-contain drop-shadow-2xl" 
              />
           </div>
         </div>
