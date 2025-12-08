@@ -211,11 +211,11 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="h-[180px] w-full">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
                   data={barChartData} 
-                  barSize={12} // Smaller bars since there are 3 per zone
+                  barSize={24} // Smaller bars since there are 3 per zone
                   margin={{ top: 20, right: 10, left: 0, bottom: 5 }}
                   onMouseMove={(state: any) => {
                     if (state.activePayload) {
@@ -291,25 +291,28 @@ export default function Home() {
                   <Bar dataKey="Heavy" fill="#1e293b" radius={[4, 4, 0, 0]} name="Heavy">
                     <LabelList 
                         dataKey="Heavy" 
-                        position="top" 
+                        position="center" 
+                        angle={-90}
                         formatter={(value: number) => value > 0 ? `${Math.round(value)}%` : ''}
-                        style={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} 
+                        style={{ fill: '#ffffff', fontSize: 10, fontWeight: 'bold' }} 
                     />
                   </Bar>
                   <Bar dataKey="Medium" fill="#f59e0b" radius={[4, 4, 0, 0]} name="Medium">
                     <LabelList 
                         dataKey="Medium" 
-                        position="top" 
+                        position="center" 
+                        angle={-90}
                         formatter={(value: number) => value > 0 ? `${Math.round(value)}%` : ''}
-                        style={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} 
+                        style={{ fill: '#ffffff', fontSize: 10, fontWeight: 'bold' }} 
                     />
                   </Bar>
                   <Bar dataKey="Light" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Light">
                     <LabelList 
                         dataKey="Light" 
-                        position="top" 
+                        position="center" 
+                        angle={-90}
                         formatter={(value: number) => value > 0 ? `${Math.round(value)}%` : ''}
-                        style={{ fill: '#64748b', fontSize: 10, fontWeight: 'bold' }} 
+                        style={{ fill: '#ffffff', fontSize: 10, fontWeight: 'bold' }} 
                     />
                   </Bar>
                 </BarChart>
