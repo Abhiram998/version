@@ -1,6 +1,6 @@
 import { useParking } from "@/lib/parking-context";
 import { ZoneCard } from "@/components/parking/ZoneCard";
-import { MapPin, Search, MoreHorizontal, Car, Share2, ThumbsUp, Star, DollarSign, Database, Activity } from "lucide-react";
+import { MapPin, Search, MoreHorizontal, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -15,12 +15,11 @@ export default function Home() {
   
   // Calculate vacancy
   const totalVacancy = totalCapacity - totalOccupied;
-  const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
   
-  // Rating/Efficiency Mock
-  const rating = 8.5;
+  // State for interactive graph
+  const [hoveredZone, setHoveredZone] = useState<any>(null);
 
-  // Chart Data Preparation (Keeping the logic from previous app)
+  // Chart Data Preparation
   const barChartData = zones.map(zone => ({
     name: zone.name.replace('Nilakkal Zone ', 'Z'),
     Heavy: zone.stats.heavy,
@@ -28,12 +27,24 @@ export default function Home() {
     Light: zone.stats.light,
     occupied: zone.occupied,
     capacity: zone.capacity,
+    originalZone: zone // Store original zone object to access stats on hover
   }));
 
+  // Calculate Pie Data based on hovered zone or total
+  const activeStats = hoveredZone ? hoveredZone.stats : {
+    heavy: zones.reduce((acc, z) => acc + z.stats.heavy, 0),
+    medium: zones.reduce((acc, z) => acc + z.stats.medium, 0),
+    light: zones.reduce((acc, z) => acc + z.stats.light, 0)
+  };
+
+  const activeOccupied = hoveredZone ? hoveredZone.occupied : totalOccupied;
+  const activeCapacity = hoveredZone ? hoveredZone.capacity : totalCapacity;
+  const activeOccupancyRate = activeCapacity > 0 ? Math.round((activeOccupied / activeCapacity) * 100) : 0;
+
   const pieData = [
-    { name: 'Heavy', value: zones.reduce((acc, z) => acc + z.stats.heavy, 0), color: '#1e293b' },
-    { name: 'Medium', value: zones.reduce((acc, z) => acc + z.stats.medium, 0), color: '#f59e0b' },
-    { name: 'Light', value: zones.reduce((acc, z) => acc + z.stats.light, 0), color: '#3b82f6' },
+    { name: 'Heavy', value: activeStats.heavy, color: '#1e293b' },
+    { name: 'Medium', value: activeStats.medium, color: '#f59e0b' },
+    { name: 'Light', value: activeStats.light, color: '#3b82f6' },
   ];
 
   // Search state
@@ -58,17 +69,10 @@ export default function Home() {
     setSearchResult(null);
   };
 
-  const TopCard = ({ title, value, icon: Icon, color, subValue, dark = false }: any) => (
+  const TopCard = ({ title, value, subValue, dark = false }: any) => (
     <div className={`rounded-xl p-6 shadow-sm border relative overflow-hidden group hover:shadow-md transition-all ${dark ? 'bg-[#1a233a] text-white border-none' : 'bg-white border-slate-100 text-slate-800'}`}>
       <div className="flex justify-between items-start mb-4">
         <span className={`font-medium ${dark ? 'text-slate-300' : 'text-slate-500'}`}>{title}</span>
-        {dark ? (
-             <div className="bg-white/20 p-1.5 rounded-full">
-               <Icon className="w-4 h-4 text-white" />
-             </div>
-        ) : (
-            <Icon className={`w-5 h-5 ${color}`} />
-        )}
       </div>
       <div className="text-4xl font-bold mb-1">
         {value}
@@ -93,36 +97,22 @@ export default function Home() {
       </div>
 
       {/* Top Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1: Vacancy (was Revenue) - Dark Blue */}
         <TopCard 
           title="Vacancy" 
           value={totalVacancy}
-          icon={DollarSign} // Using DollarSign as in the mock, but functionality is Vacancy
-          color="text-white"
           dark={true}
         />
         {/* Card 2: Occupancy (was Share) */}
         <TopCard 
           title="Occupancy" 
           value={totalOccupied} 
-          icon={Share2} 
-          color="text-orange-500" 
         />
         {/* Card 3: Total Capacity (was Likes) */}
         <TopCard 
           title="Total Capacity" 
           value={totalCapacity} 
-          icon={ThumbsUp} 
-          color="text-yellow-500" 
-        />
-        {/* Card 4: Rating/Efficiency */}
-        <TopCard 
-          title="Rating" 
-          value={rating} 
-          subValue="Stars"
-          icon={Star} 
-          color="text-orange-400" 
         />
       </div>
 
@@ -135,14 +125,21 @@ export default function Home() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold text-slate-700">Live Zone Status</h3>
-              <div className="flex items-center gap-2">
-                 <span className="bg-slate-900 text-white text-xs px-2 py-1 rounded">2025</span>
-                 <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white border-none h-8 text-xs">Check Now</Button>
-              </div>
             </div>
             <div className="h-[250px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barChartData} barSize={20}>
+                <BarChart 
+                  data={barChartData} 
+                  barSize={20}
+                  onMouseMove={(state: any) => {
+                    if (state.activePayload) {
+                      setHoveredZone(state.activePayload[0].payload.originalZone);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredZone(null);
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
@@ -202,6 +199,9 @@ export default function Home() {
         <div className="space-y-6">
           {/* Donut Chart Card */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-auto">
+            <h3 className="font-bold text-slate-700 mb-4 text-center">
+              {hoveredZone ? `Zone ${hoveredZone.name.replace('Nilakkal Zone ', '')}` : "Total"} Composition
+            </h3>
             <div className="relative h-[250px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -221,7 +221,7 @@ export default function Home() {
               </ResponsiveContainer>
               {/* Center Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-bold text-slate-800">{occupancyRate}%</span>
+                <span className="text-3xl font-bold text-slate-800">{activeOccupancyRate}%</span>
                 <span className="text-xs text-slate-400">Occupied</span>
               </div>
             </div>
@@ -236,12 +236,6 @@ export default function Home() {
                   <span className="font-bold text-slate-700">{item.value}</span>
                 </div>
               ))}
-            </div>
-
-            <div className="mt-8">
-              <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-lg shadow-orange-200 shadow-lg">
-                Check Now
-              </Button>
             </div>
           </div>
           
