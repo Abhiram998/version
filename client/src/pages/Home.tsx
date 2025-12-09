@@ -306,7 +306,7 @@ export default function Home() {
                     tickLine={false} 
                     tick={{fill: '#64748b', fontSize: 12}} 
                     unit="%"
-                    domain={['auto', 'auto']} // Auto scale based on data
+                    domain={[0, 100]} // Fixed scale 0-100%
                   />
                   <Tooltip 
                     cursor={{ fill: '#f8fafc' }}
