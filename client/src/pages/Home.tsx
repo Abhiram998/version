@@ -495,7 +495,7 @@ export default function Home() {
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Auto-assign (Any Available)" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[200px]">
                   <SelectItem value="auto">Auto-assign (Any Available)</SelectItem>
                   {zones.map((zone) => (
                     <SelectItem key={zone.id} value={zone.id}>
