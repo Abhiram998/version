@@ -387,44 +387,51 @@ export default function Home() {
           </div>
 
           {/* Bottom Section: Live Zone Status (Zone Cards) & Search */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-             {/* Zone Cards */}
-             <div className="lg:col-span-3 space-y-4">
+          <div className="space-y-4">
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                    <Activity className="w-5 h-5 text-orange-500" />
                    <h3 className="font-bold text-slate-700">Live Zone Overview</h3>
                 </div>
-                
-                {/* 5 columns as requested */}
-                <div className="max-h-[500px] overflow-y-auto pr-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                   {zones.map((zone) => (
-                     <ZoneCard key={zone.id} zone={zone} />
-                   ))}
-                </div>
-             </div>
 
-             {/* Admin Search Widget (Moved here) */}
-             <div className="lg:col-span-1">
-              {isAdmin && (
-                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 h-full">
-                    <h3 className="font-bold text-slate-700 mb-4 text-sm uppercase tracking-wider">Quick Search</h3>
-                    <form onSubmit={handleSearch} className="flex flex-col gap-3">
-                        <Input 
-                            placeholder="Vehicle No." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-slate-50"
-                        />
-                        <Button type="submit" className="w-full bg-slate-900 text-white">Find Vehicle</Button>
-                    </form>
-                    {searchResult && (
-                        <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-md text-sm border border-green-100">
-                            <p className="font-bold">{searchResult.vehicle.number}</p>
-                            <p>Loc: {searchResult.zone.name}</p>
-                        </div>
-                    )}
-                 </div>
-              )}
+                {/* Admin Search Widget (Integrated into Header) */}
+                {isAdmin && (
+                   <div className="flex items-center gap-3">
+                      {searchResult && (
+                          <div className="px-3 py-1.5 bg-green-50 text-green-700 rounded-md text-xs border border-green-100 flex items-center gap-2 animate-in fade-in slide-in-from-right-5">
+                              <span className="font-bold">{searchResult.vehicle.number}</span>
+                              <span>in {searchResult.zone.name}</span>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-4 w-4 ml-1 hover:bg-green-100 rounded-full"
+                                onClick={() => setSearchResult(null)}
+                              >
+                                <span className="sr-only">Dismiss</span>
+                                ×
+                              </Button>
+                          </div>
+                      )}
+                      <form onSubmit={handleSearch} className="flex gap-2">
+                          <Input 
+                              placeholder="Find Vehicle..." 
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="bg-white w-[180px] h-9 text-sm"
+                          />
+                          <Button type="submit" size="sm" className="bg-slate-900 text-white h-9 px-3">
+                            <Search className="w-3.5 h-3.5" />
+                          </Button>
+                      </form>
+                   </div>
+                )}
+             </div>
+             
+             {/* 10 columns as requested */}
+             <div className="max-h-[500px] overflow-y-auto pr-2 grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2">
+                {zones.map((zone) => (
+                  <ZoneCard key={zone.id} zone={zone} />
+                ))}
              </div>
           </div>
 

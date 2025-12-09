@@ -39,14 +39,14 @@ export function ZoneCard({ zone, detailed = false }: { zone: ParkingZone, detail
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "group relative overflow-hidden rounded-lg border bg-card p-3 transition-all hover:shadow-md cursor-pointer",
+        "group relative overflow-hidden rounded-lg border bg-card p-2 transition-all hover:shadow-md cursor-pointer",
         isFull ? "border-red-200 bg-red-50/30 dark:bg-red-900/10" : "border-border hover:border-primary/30"
       )}
     >
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center mb-1">
+        <div className="flex items-center gap-1.5">
           <div className={cn(
-            "h-6 w-6 rounded-md flex items-center justify-center text-[10px] font-bold border",
+            "h-5 w-5 rounded-md flex items-center justify-center text-[10px] font-bold border",
             isFull 
               ? "bg-destructive text-destructive-foreground border-destructive/20" 
               : "bg-primary/10 text-primary border-primary/10"
@@ -54,12 +54,12 @@ export function ZoneCard({ zone, detailed = false }: { zone: ParkingZone, detail
             {zone.id}
           </div>
           <div>
-            <h3 className="font-bold text-sm text-foreground leading-none">{zone.name.replace('Nilakkal Zone ', 'Zone ')}</h3>
+            <h3 className="font-bold text-xs text-foreground leading-none whitespace-nowrap">{zone.name.replace('Nilakkal Zone ', 'Z')}</h3>
           </div>
         </div>
         
         <span className={cn(
-          "text-[10px] font-bold px-1.5 py-0.5 rounded-full border",
+          "text-[9px] font-bold px-1 py-0 rounded-full border",
           isFull 
             ? "bg-red-100 text-red-700 border-red-200" 
             : isNearFull 
@@ -70,16 +70,16 @@ export function ZoneCard({ zone, detailed = false }: { zone: ParkingZone, detail
         </span>
       </div>
 
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs items-end">
-          <span className="text-muted-foreground font-medium">Occupancy</span>
-          <div className="flex items-baseline gap-1">
+      <div className="space-y-1">
+        <div className="flex justify-between text-[10px] items-end">
+          <span className="text-muted-foreground font-medium truncate">Occ</span>
+          <div className="flex items-baseline gap-0.5">
             <span className="font-bold tabular-nums text-foreground">{zone.occupied}</span>
-            <span className="text-[10px] text-muted-foreground">/ {zone.capacity}</span>
+            <span className="text-[9px] text-muted-foreground">/{zone.capacity}</span>
           </div>
         </div>
         <Progress value={percentage} className={cn(
-          "h-1.5",
+          "h-1",
           isFull ? "bg-red-100 [&>div]:bg-red-500" : "bg-primary/10 [&>div]:bg-primary"
         )} />
       </div>
