@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// Types
 export type VehicleRecord = {
   plate: string;
   zone: string;
@@ -25,9 +24,6 @@ interface PoliceBackupProps {
   appName?: string;
 }
 
-const DB_VERSION = 1;
-const STORE_NAME = 'backups';
-
 export default function PoliceBackup({
   getRecords,
   onRestore,
@@ -38,13 +34,14 @@ export default function PoliceBackup({
   const [db, setDb] = useState<IDBDatabase | null>(null);
 
   const dbName = `${appName}-backup-db`;
+  const STORE_NAME = 'backups';
 
   // Initialize IndexedDB
   useEffect(() => {
-    const request = indexedDB.open(dbName, DB_VERSION);
+    const request = indexedDB.open(dbName, 1);
 
     request.onerror = () => setStatus('Failed to open backup database.');
-    
+
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -139,7 +136,8 @@ export default function PoliceBackup({
   const exportCSV = (snapshot: BackupSnapshot) => {
     const headers = ['plate', 'zone', 'timeIn', 'timeOut'];
     const rows = snapshot.data.map(r => 
-      `"${r.plate}","${r.zone}","${r.timeIn}","${r.timeOut || ''}"`
+      // Escape quotes
+      `"${(r.plate || '').replace(/"/g, '""')}","${(r.zone || '').replace(/"/g, '""')}","${r.timeIn}","${r.timeOut || ''}"`
     );
     const csvContent = [headers.join(','), ...rows].join('\n');
     downloadFile(csvContent, `backup-${snapshot.id}.csv`, 'text/csv');
@@ -171,17 +169,15 @@ export default function PoliceBackup({
       try {
         const content = JSON.parse(event.target?.result as string);
         
-        // Basic validation of import structure
+        // Validation
         if (!content.data || !Array.isArray(content.data)) {
-          throw new Error('Invalid backup file format.');
+          throw new Error('Invalid backup file format: missing data array.');
         }
         validatePayload(content.data);
 
-        // Save as new snapshot
         const transaction = db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
         
-        // Create new snapshot entry from imported data
         const newSnapshot: Omit<BackupSnapshot, 'id'> = {
           meta: {
             app: appName,
@@ -195,7 +191,7 @@ export default function PoliceBackup({
         const request = store.add(newSnapshot);
         request.onsuccess = () => {
           loadSnapshots(db);
-          alert('Backup imported successfully as a new snapshot.');
+          alert('Backup imported successfully.');
           setStatus('Import successful.');
         };
       } catch (err) {
@@ -203,17 +199,15 @@ export default function PoliceBackup({
       }
     };
     reader.readAsText(file);
-    // Reset input
-    e.target.value = '';
+    e.target.value = ''; // Reset input
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-white/5 border-white/10 space-y-4">
+    <div className="p-4 border rounded bg-white shadow-sm space-y-4 font-sans text-gray-800">
       <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white">Police Backup System</h2>
-          <p className="text-sm text-white/60">Local secure backup (IndexedDB)</p>
-          {status && <p className="text-xs text-blue-400 mt-1">{status}</p>}
+          <h2 className="text-xl font-bold">Police Backup</h2>
+          {status && <p className="text-sm text-blue-600 mt-1">{status}</p>}
         </div>
         <div className="flex gap-2">
           <button
@@ -222,7 +216,7 @@ export default function PoliceBackup({
           >
             Save Snapshot
           </button>
-          <label className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded text-sm font-medium cursor-pointer transition-colors">
+          <label className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium cursor-pointer transition-colors border">
             Import JSON
             <input
               type="file"
@@ -234,22 +228,22 @@ export default function PoliceBackup({
         </div>
       </div>
 
-      <div className="space-y-2 max-h-[400px] overflow-y-auto">
+      <div className="space-y-2 max-h-[400px] overflow-y-auto border-t pt-4">
         {snapshots.length === 0 ? (
-          <div className="text-center py-8 text-white/40 italic border border-dashed border-white/10 rounded">
+          <div className="text-center py-8 text-gray-400 italic">
             No backups found.
           </div>
         ) : (
           snapshots.map((snap) => (
-            <div key={snap.id} className="p-3 bg-black/40 border border-white/10 rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:border-white/30 transition-colors">
+            <div key={snap.id} className="p-3 bg-gray-50 border rounded flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-blue-400">#{snap.id}</span>
-                  <span className="text-white font-medium">
+                  <span className="font-mono font-bold text-gray-500">#{snap.id}</span>
+                  <span className="font-medium">
                     {new Date(snap.meta.createdAt).toLocaleString()}
                   </span>
                 </div>
-                <div className="text-xs text-white/60 mt-1">
+                <div className="text-xs text-gray-500 mt-1">
                   {snap.meta.recordCount} records • v{snap.meta.version}
                 </div>
               </div>
@@ -257,25 +251,25 @@ export default function PoliceBackup({
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => exportCSV(snap)}
-                  className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-white rounded border border-white/10"
+                  className="px-2 py-1 bg-white hover:bg-gray-50 text-xs text-gray-700 rounded border"
                 >
-                  CSV
+                  Export CSV
                 </button>
                 <button
                   onClick={() => exportJSON(snap)}
-                  className="px-2 py-1 bg-white/5 hover:bg-white/10 text-xs text-white rounded border border-white/10"
+                  className="px-2 py-1 bg-white hover:bg-gray-50 text-xs text-gray-700 rounded border"
                 >
-                  JSON
+                  Export JSON
                 </button>
                 <button
                   onClick={() => handleRestore(snap)}
-                  className="px-2 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-xs text-yellow-500 border border-yellow-500/30 rounded"
+                  className="px-2 py-1 bg-yellow-50 hover:bg-yellow-100 text-xs text-yellow-700 border border-yellow-200 rounded"
                 >
                   Restore
                 </button>
                 <button
                   onClick={() => handleDelete(snap.id)}
-                  className="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-xs text-red-500 border border-red-500/30 rounded"
+                  className="px-2 py-1 bg-red-50 hover:bg-red-100 text-xs text-red-700 border border-red-200 rounded"
                 >
                   Delete
                 </button>
