@@ -8,6 +8,7 @@ export type Vehicle = {
   zoneId: string;
   ticketId: string;
   type: VehicleType;
+  slot?: string;
 };
 
 export type ParkingZone = {
@@ -30,7 +31,7 @@ export type ParkingZone = {
 
 type ParkingContextType = {
   zones: ParkingZone[];
-  enterVehicle: (vehicleNumber: string, type?: VehicleType) => { success: boolean; ticket?: any; message?: string };
+  enterVehicle: (vehicleNumber: string, type?: VehicleType, zoneId?: string, slot?: string) => { success: boolean; ticket?: any; message?: string };
   totalCapacity: number;
   totalOccupied: number;
   isAdmin: boolean;
@@ -178,26 +179,36 @@ export function ParkingProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  const enterVehicle = (vehicleNumber: string, type: VehicleType = 'light') => {
-    // Find first available zone
-    const availableZoneIndex = zones.findIndex(z => z.occupied < z.capacity);
+  const enterVehicle = (vehicleNumber: string, type: VehicleType = 'light', zoneId?: string, slot?: string) => {
+    let targetZoneIndex = -1;
+
+    if (zoneId) {
+      targetZoneIndex = zones.findIndex(z => z.id === zoneId);
+      if (targetZoneIndex !== -1 && zones[targetZoneIndex].occupied >= zones[targetZoneIndex].capacity) {
+        return { success: false, message: `Zone ${zones[targetZoneIndex].name} is full!` };
+      }
+    } else {
+      // Find first available zone
+      targetZoneIndex = zones.findIndex(z => z.occupied < z.capacity);
+    }
     
-    if (availableZoneIndex === -1) {
-      return { success: false, message: "All parking zones are full!" };
+    if (targetZoneIndex === -1) {
+      return { success: false, message: zoneId ? "Zone not found!" : "All parking zones are full!" };
     }
 
-    const zone = zones[availableZoneIndex];
+    const zone = zones[targetZoneIndex];
     const ticketId = `TKT-${Date.now()}-${Math.floor(Math.random()*1000)}`;
     const newVehicle: Vehicle = {
       number: vehicleNumber,
       entryTime: new Date(),
       zoneId: zone.id,
       ticketId,
-      type
+      type,
+      slot
     };
 
     const updatedZones = [...zones];
-    updatedZones[availableZoneIndex] = {
+    updatedZones[targetZoneIndex] = {
       ...zone,
       occupied: zone.occupied + 1,
       vehicles: [newVehicle, ...zone.vehicles],
@@ -216,7 +227,8 @@ export function ParkingProvider({ children }: { children: React.ReactNode }) {
         zoneName: zone.name,
         ticketId,
         time: new Date().toLocaleTimeString(),
-        type
+        type,
+        slot
       }
     };
   };

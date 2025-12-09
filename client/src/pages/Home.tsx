@@ -1,23 +1,82 @@
-import { useParking } from "@/lib/parking-context";
+import { useParking, VehicleType } from "@/lib/parking-context";
 import { ZoneCard } from "@/components/parking/ZoneCard";
-import { MapPin, Search, MoreHorizontal, Activity } from "lucide-react";
+import { MapPin, Search, MoreHorizontal, Activity, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LabelList
 } from 'recharts';
 
 export default function Home() {
-  const { zones, totalCapacity, totalOccupied, isAdmin } = useParking();
+  const { zones, totalCapacity, totalOccupied, isAdmin, enterVehicle } = useParking();
+  const { toast } = useToast();
   
   // Calculate vacancy
   const totalVacancy = totalCapacity - totalOccupied;
   
   // State for interactive graph
   const [hoveredZone, setHoveredZone] = useState<any>(null);
+
+  // Ticket Generation State
+  const [isTicketOpen, setIsTicketOpen] = useState(false);
+  const [ticketData, setTicketData] = useState({
+    vehicleNumber: "",
+    zoneId: "",
+    slot: "",
+    type: "light" as VehicleType
+  });
+
+  const handleGenerateTicket = () => {
+    if (!ticketData.vehicleNumber) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please enter a vehicle number",
+      });
+      return;
+    }
+
+    const result = enterVehicle(
+      ticketData.vehicleNumber, 
+      ticketData.type, 
+      ticketData.zoneId || undefined, 
+      ticketData.slot || undefined
+    );
+
+    if (result.success) {
+      toast({
+        title: "Ticket Generated",
+        description: `Ticket ${result.ticket.ticketId} created for ${result.ticket.vehicleNumber} in ${result.ticket.zoneName}`,
+      });
+      setIsTicketOpen(false);
+      setTicketData({ vehicleNumber: "", zoneId: "", slot: "", type: "light" });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Generation Failed",
+        description: result.message,
+      });
+    }
+  };
 
   // Chart Data Preparation
   const barChartData = zones.map(zone => {
@@ -193,7 +252,14 @@ export default function Home() {
           {/* Bar Chart Section */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-700">Live Zone Status (Occupancy %)</h3>
+              <div className="flex items-center gap-4">
+                <h3 className="font-bold text-slate-700">Live Zone Status (Occupancy %)</h3>
+                {isAdmin && (
+                  <Button size="sm" onClick={() => setIsTicketOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                    <Ticket className="w-4 h-4" /> Generate Ticket
+                  </Button>
+                )}
+              </div>
               {/* Legend for the chart - Inline on desktop */}
               <div className="hidden md:flex items-center gap-6">
                  <div className="flex items-center gap-2">
@@ -364,6 +430,85 @@ export default function Home() {
 
         </div>
       </div>
+
+      <Dialog open={isTicketOpen} onOpenChange={setIsTicketOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Generate Parking Ticket</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="vehicle-no" className="text-right">
+                Vehicle No.
+              </Label>
+              <Input
+                id="vehicle-no"
+                value={ticketData.vehicleNumber}
+                onChange={(e) => setTicketData({ ...ticketData, vehicleNumber: e.target.value })}
+                className="col-span-3"
+                placeholder="KL-01-AB-1234"
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="vehicle-type" className="text-right">
+                Type
+              </Label>
+              <Select 
+                value={ticketData.type} 
+                onValueChange={(val: VehicleType) => setTicketData({ ...ticketData, type: val })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light Vehicle (Car/Jeep)</SelectItem>
+                  <SelectItem value="medium">Medium Vehicle (Van/Mini Bus)</SelectItem>
+                  <SelectItem value="heavy">Heavy Vehicle (Bus/Truck)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="zone" className="text-right">
+                Zone
+              </Label>
+              <Select 
+                value={ticketData.zoneId} 
+                onValueChange={(val) => setTicketData({ ...ticketData, zoneId: val })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Auto-assign (Any Available)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Auto-assign (Any Available)</SelectItem>
+                  {zones.map((zone) => (
+                    <SelectItem key={zone.id} value={zone.id}>
+                      {zone.name} ({zone.capacity - zone.occupied} free)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="slot" className="text-right">
+                Slot (Opt)
+              </Label>
+              <Input
+                id="slot"
+                value={ticketData.slot}
+                onChange={(e) => setTicketData({ ...ticketData, slot: e.target.value })}
+                className="col-span-3"
+                placeholder="e.g. A-12"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={handleGenerateTicket}>Generate Ticket</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
