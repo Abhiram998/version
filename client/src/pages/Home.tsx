@@ -395,8 +395,8 @@ export default function Home() {
                    <h3 className="font-bold text-slate-700">Live Zone Overview</h3>
                 </div>
                 
-                {/* 4 columns as requested */}
-                <div className="max-h-[500px] overflow-y-auto pr-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {/* 5 columns as requested */}
+                <div className="max-h-[500px] overflow-y-auto pr-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                    {zones.map((zone) => (
                      <ZoneCard key={zone.id} zone={zone} />
                    ))}
