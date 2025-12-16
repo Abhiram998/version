@@ -5,27 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area } from "recharts";
 
 const weeklyData = [
-  { day: "Mon", occupancy: 65 },
-  { day: "Tue", occupancy: 55 },
-  { day: "Wed", occupancy: 75 },
-  { day: "Thu", occupancy: 85 },
-  { day: "Fri", occupancy: 95 },
-  { day: "Sat", occupancy: 98 },
-  { day: "Sun", occupancy: 90 },
+  { day: "Mon", occupancy: 0 },
+  { day: "Tue", occupancy: 0 },
+  { day: "Wed", occupancy: 0 },
+  { day: "Thu", occupancy: 0 },
+  { day: "Fri", occupancy: 0 },
+  { day: "Sat", occupancy: 0 },
+  { day: "Sun", occupancy: 0 },
 ];
 
 const tomorrowHourlyData = [
-  { time: "4am", prob: 30 },
-  { time: "8am", prob: 60 },
-  { time: "12pm", prob: 95 },
-  { time: "4pm", prob: 90 },
-  { time: "8pm", prob: 70 },
-  { time: "12am", prob: 40 },
+  { time: "4am", prob: 0 },
+  { time: "8am", prob: 0 },
+  { time: "12pm", prob: 0 },
+  { time: "4pm", prob: 0 },
+  { time: "8pm", prob: 0 },
+  { time: "12am", prob: 0 },
 ];
 
 const zonePredictions = Array.from({ length: 20 }, (_, i) => ({
   id: `Z${i + 1}`,
-  prob: Math.floor(Math.random() * 60) + 40
+  prob: 0
 }));
 
 export default function Predictions() {
