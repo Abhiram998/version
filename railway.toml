@@ -8,4 +8,4 @@ NODE_VERSION = "18"
 cmd = "npm install && npm run build"
 
 [deploy]
-startCommand = "python -m uvicorn main:app --host 0.0.0.0 --port $PORT"
+startCommand = "python3 -m uvicorn main:app --host 0.0.0.0 --port $PORT"
