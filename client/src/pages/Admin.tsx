@@ -11,7 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Link } from "wouter";
-import { User, Eye, Bus, Truck, Car, ChevronLeft, ChevronRight, Pause, Play, Plus, Pencil, Trash2, FileText, Download } from "lucide-react";
+import { User, Eye, Bus, Truck, Car, ChevronLeft, ChevronRight, Pause, Play, Plus, Pencil, Trash2, FileText, Download, Database } from "lucide-react";
 
 export default function Admin() {
   const { zones, totalCapacity, totalOccupied, addZone, updateZone, deleteZone } = useParking();
@@ -136,7 +136,17 @@ export default function Admin() {
           <div className="text-xs text-white/60">CONTROL ROOM • {currentTime.toLocaleDateString()} • {currentTime.toLocaleTimeString()}</div>
         </div>
         <div className="flex gap-4 items-center">
-          <Button onClick={openCreateDialog} className="bg-white text-black hover:bg-white/90 rounded-none gap-2">
+          <Link href="/report">
+             <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black rounded-none gap-2 h-10">
+                <FileText className="w-4 h-4" /> Reports
+             </Button>
+          </Link>
+           <Link href="/backup">
+             <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black rounded-none gap-2 h-10">
+                <Database className="w-4 h-4" /> Backup
+             </Button>
+          </Link>
+          <Button onClick={openCreateDialog} className="bg-white text-black hover:bg-white/90 rounded-none gap-2 h-10">
             <Plus className="w-4 h-4" /> Add Parking
           </Button>
           <div className="border border-white p-2 min-w-[150px] text-right">
