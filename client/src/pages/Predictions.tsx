@@ -52,8 +52,12 @@ export default function Predictions() {
                 <Calendar className="w-4 h-4" />
                 <span className="text-sm font-medium uppercase tracking-wider">Tomorrow's Outlook</span>
               </div>
-              <h2 className="text-4xl font-bold mb-1">92% Probability</h2>
-              <p className="text-blue-100">Expected to reach full capacity by 12:00 PM</p>
+              <h2 className="text-4xl font-bold mb-1">{Math.max(...tomorrowHourlyData.map(d => d.prob))}% Probability</h2>
+              <p className="text-blue-100">
+                {Math.max(...tomorrowHourlyData.map(d => d.prob)) > 50 
+                  ? "Expected to reach full capacity by 12:00 PM" 
+                  : "Low probability of reaching full capacity"}
+              </p>
             </div>
             <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
