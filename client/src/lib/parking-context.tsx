@@ -1,3 +1,4 @@
+import { apiGet } from "./api";
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { appendEvent, saveLatestSnapshot, loadLatestSnapshotPayload, rebuildStateFromEvents, VehicleRecord } from '@/utils/persistence';
 
